@@ -1,3 +1,4 @@
+import { sendVerificationEmail } from "../mailtrap/emails.js";
 import { User } from "../models/user.model.js";
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 
@@ -30,6 +31,8 @@ export const signup = async (req, res) => {
 
     // jwt (assuming you have this helper imported)
     generateTokenAndSetCookie(res, user._id);
+
+    sendVerificationEmail(user.email, verificationToken);
 
     res.status(201).json({
       success: true,
