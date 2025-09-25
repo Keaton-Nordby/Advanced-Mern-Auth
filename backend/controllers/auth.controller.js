@@ -1,4 +1,4 @@
-import { sendPasswordResetEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
+import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js";
 import { User } from "../models/user.model.js";
 import { generateTokenAndSetCookie } from '../utils/generateTokenAndSetCookie.js';
 
@@ -113,9 +113,10 @@ export const login = async (req, res) => {
 }
 
 export const logout = async (req, res) => {
-    res.clearCookie("token")
-    res.status(200)
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully" });
 }
+
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
@@ -136,9 +137,57 @@ export const forgotPassword = async (req, res) => {
     await user.save()
 
     //send email
-    await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/ ${resetToken}`)
+    await sendPasswordResetEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`)
     res.status(200).json({ success: true, message: "Password reset link sent to your email" })
   } catch(error) {
     console.log(error);
+  }
+}
+
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpiresAt: { $gt: Date.now() },
+    })
+
+    if(!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired reset token"})
+    }
+
+    // update password
+    const hashedPassword = await bcryptjs.hash(password, 10)
+    
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiresAt = undefined;
+    await user.save();
+
+    sendResetSuccessEmail(user.email);
+
+    res.status(200).json({ success: true, message: "Password reset successfully" })
+
+  } catch (error) {
+    console.log("Error in resetPassword", error)
+    return res.status(400).json({ success: false, message: error.message })
+  }
+}
+
+export const checkAuth = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId)
+    if (!user) {
+      return res.status(400).json({ success: false, message: "User not found" })
+    }
+    res.status(200).json({success: true, user : {
+      ...user._doc,
+      password: undefined
+    }})
+  } catch (error) {
+    console.log(error)
   }
 }

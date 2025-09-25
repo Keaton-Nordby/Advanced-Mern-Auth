@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from "dotenv";
+import cookieParser from 'cookie-parser';
 
 import { connectDB } from './db/connectDB.js';
 import authRoutes from "./routes/auth.route.js"
@@ -10,19 +11,17 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(express.json()); // parses incoming requests from the req.body
-
-app.get("/ping", (req, res) => {
-  res.send("pong");
-});
-
+app.use(cookieParser()); // allows for parsing incoming cookies
 
 app.use("/api/auth", authRoutes);
 
 
 
+
+
 app.listen(PORT, () => {
     connectDB();
-    console.log(`Serve is running on port: ${PORT}`);
+    console.log(`Server is running on port: ${PORT}`);
 });
 
 
