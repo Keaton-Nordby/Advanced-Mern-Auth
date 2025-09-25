@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-25px) scale(1.05); }
+}
+
+@keyframes float-slower {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-15px) scale(1.03); }
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-slower {
+  animation: float-slower 10s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+
+@keyframes drift-diagonal {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(60vw, -60vh) scale(1.1); /* adjust to drift off-screen */
+    opacity: 0;
+  }
+}
+
+.animate-drift-diagonal {
+  animation: drift-diagonal 60s linear forwards; /* slow drift off-screen */
+}
+
+.animation-delay-5000 {
+  animation-delay: 5s;
+}
+
+.animation-delay-10000 {
+  animation-delay: 10s;
+}
+

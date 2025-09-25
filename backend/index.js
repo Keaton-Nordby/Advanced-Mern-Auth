@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from "dotenv";
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import { connectDB } from './db/connectDB.js';
 import authRoutes from "./routes/auth.route.js"
@@ -9,6 +10,12 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+// CORS configuration
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174'], // Allow both Vite ports
+  credentials: true,
+}));
 
 app.use(express.json()); // parses incoming requests from the req.body
 app.use(cookieParser()); // allows for parsing incoming cookies

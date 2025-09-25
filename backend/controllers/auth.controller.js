@@ -32,7 +32,13 @@ export const signup = async (req, res) => {
 
     generateTokenAndSetCookie(res, user._id);
 
-    sendVerificationEmail(user.email, verificationToken);
+    // Log verification code to console for testing (since email might not work)
+    console.log(`\n🔐 VERIFICATION CODE for ${email}: ${verificationToken}\n`);
+
+    // Try to send verification email (non-blocking)
+    sendVerificationEmail(user.email, verificationToken).catch(error => {
+      console.error("Failed to send verification email:", error.message);
+    });
 
     res.status(201).json({
       success: true,
@@ -66,7 +72,11 @@ export const verifyEmail = async (req, res) => {
         user.verificationTokenExpiresAt = undefined;
         await user.save();
 
-        await sendWelcomeEmail(user.email, user.name);
+        // Send welcome email asynchronously (non-blocking)
+        sendWelcomeEmail(user.email, user.name).catch(error => {
+          console.error("Failed to send welcome email:", error);
+        });
+
         res.status(200).json({
           success: true,
           message: "Email verified successfully",
@@ -109,6 +119,7 @@ export const login = async (req, res) => {
       
     } catch (error) {
       console.log(error)
+      res.status(500).json({ success: false, message: "Server error" });
     }
 }
 
@@ -189,5 +200,6 @@ export const checkAuth = async (req, res) => {
     }})
   } catch (error) {
     console.log(error)
+    res.status(500).json({ success: false, message: "Server error" });
   }
 }
